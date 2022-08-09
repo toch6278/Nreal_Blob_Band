@@ -31,6 +31,7 @@ public class ClothManager : MonoBehaviour
     public Color tempColor; 
     public float red, green, blue;
     // private static readonly string SAVE_FOLDER = Application.dataPath + "/Saves/"; 
+    public string folderPath;
     public string saveFile, saveFile_g, saveFile_d, saveFile_p;
     public bool isLoadCloth;
     public TextAsset saveJson; 
@@ -45,10 +46,12 @@ public class ClothManager : MonoBehaviour
         // {
         //    File.WriteAllText(Application.dataPath + "/save.txt", json); 
         // }
+        Debug.Log(Application.dataPath);
     }
     // Start is called before the first frame update
     void Start()
     {
+        //create list so can look at accesspries as children
         accessories = new List<GameObject>();
         tops = new List<GameObject>();
         pants = new List<GameObject>();
@@ -59,7 +62,17 @@ public class ClothManager : MonoBehaviour
         findObj();
         print("found objects");
         objOff(); 
+        GetPath();
+        // folderPath = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ? Application.persistentDataPath : Application.dataPath) + "/BlobDataFolder/";
+
+        // saveFile = folderPath + "/save.txt"; 
+        // saveFile_g = folderPath + "/saveGuitar.txt"; 
+        // saveFile_d = folderPath + "/saveDrums.txt"; 
+        // saveFile_p = folderPath + "/savePiano.txt"; 
+
+        Debug.Log(Application.dataPath);
         saveFile = Application.dataPath + "/save.txt"; 
+        print("saved to Nreal save.txt");
         saveFile_g = Application.dataPath + "/saveGuitar.txt"; 
         saveFile_d = Application.dataPath + "/saveDrums.txt"; 
         saveFile_p = Application.dataPath + "/savePiano.txt"; 
@@ -69,6 +82,7 @@ public class ClothManager : MonoBehaviour
         P_index = 0; 
         H_index = 0; 
         S_index = 0; 
+
         if(isLoadCloth)
         {
             print("load cloth");
@@ -112,7 +126,22 @@ public class ClothManager : MonoBehaviour
         // }
     }
 
-Transform [] childs ;
+    public string GetPath()
+    {
+        string folderPath = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ? Application.persistentDataPath : Application.dataPath) + "/Assets/";
+        string filePath = folderPath + "myFile.json";
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath); 
+        }
+        if (!File.Exists(filePath)) 
+        {
+            File.Create(filePath).Close();
+            File.WriteAllText(filePath, saveFile);
+        }
+        return  filePath ;
+    }
+    Transform [] childs ;
     public void findObj()
     {
         //can't use GetComponentsInChildren with GameObject 
@@ -436,301 +465,320 @@ Transform [] childs ;
             green = green,
             blue = blue
         };
-        string json =JsonUtility.ToJson(saveBlob); 
-        File.WriteAllText(saveFile,json);
-        File.WriteAllText(saveFile_g, json);
-        File.WriteAllText(saveFile_d, json);  
-        File.WriteAllText(saveFile_p, json);
+        // if (!File.Exists(saveFile) || !File.Exists(saveFile_d) || !File.Exists(saveFile_g) || !File.Exists(saveFile_p))
+        // {
+            string json =JsonUtility.ToJson(saveBlob);
+
+        //     File.Create(saveFile).Close(); 
+        //     File.Create(saveFile_d).Close(); 
+        //     File.Create(saveFile_g).Close();
+        //     File.Create(saveFile_p).Close();
+
+            File.WriteAllText(saveFile,json);
+            File.WriteAllText(saveFile_g, json);
+            File.WriteAllText(saveFile_d, json);  
+            File.WriteAllText(saveFile_p, json);
+        // }
         
+        // Debug.Log(A_index); 
+        // Debug.Log(Application.dataPath);
+        //not writing
         string saveString = File.ReadAllText(saveFile); 
+        // Debug.Log(saveFile);
         Debug.Log(saveString); 
     }
 
     public void Load() 
     {
-        //reference Code Monkey Save and Load video 
-        if (File.Exists(saveFile))
-        {
-            string saveString = File.ReadAllText(saveFile); 
-            Debug.Log(saveString); 
-
-            SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
-
-            //for when user is in scene 2 and wants to load the last saved fit
-           // closeObjs(accessories);
-            closeObjs(tops);
-            closeObjs(pants);
-            closeObjs(hair);
-            closeObjs(shoes);
-
-            A_index = saveObject.A_index;
-            T_index = saveObject.T_index; 
-            P_index = saveObject.P_index;
-            H_index = saveObject.H_index;  
-            S_index = saveObject.S_index; 
-
-            accessories[A_index].SetActive(true); 
-            tops[T_index].SetActive(true); 
-            pants[P_index].SetActive(true);
-            hair[H_index].SetActive(true);
-            shoes[S_index].SetActive(true);
-            // print(A_index);
-            // print(T_index);
-            // print(P_index);
-            // print(H_index);
-            // print(S_index);
-
-            red = saveObject.red; 
-            green = saveObject.green; 
-            blue = saveObject.blue;
-            // // print(red);
-            // // print(green);
-            // // print (blue);
-
-            tempColor.r = red/255f;
-            tempColor.g = green/255f;
-            tempColor.b = blue/255f; 
-
-            print("temp:");
-            Debug.Log(tempColor);
-            // // GetComponent<MeshRenderer>().material.color = tempColor;
-            material.color = tempColor;
-            print("material:");
-            Debug.Log(material.color);
-            print("fcp:");
-            Debug.Log((float)((Color32)fcp.color).r);
-            Debug.Log((float)((Color32)fcp.color).g);
-            Debug.Log((float)((Color32)fcp.color).b);
-
-            //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
-            fcp.color = material.color; 
-            print("set fcp from material");
-            Debug.Log(fcp.color);
-
-            PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
-            PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
-            PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
-
-            // Debug.Log(red);
-            // Debug.Log((float)((Color32)fcp.color).r);
-            // Debug.Log((float)((Color32)fcp.color).g);
-            // Debug.Log((float)((Color32)fcp.color).b);
-
-        }
-
-        if (File.Exists(saveFile_d) && tag == "drums")
-        {
-            string saveString = File.ReadAllText(saveFile_d); 
-            Debug.Log(saveString); 
-
-            SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
-
-            //for when user is in scene 2 and wants to load the last saved fit
-          //  closeObjs(accessories);
-            closeObjs(tops);
-            closeObjs(pants);
-            closeObjs(hair);
-            closeObjs(shoes);
-
-            A_index = saveObject.A_index;
-            T_index = saveObject.T_index; 
-            P_index = saveObject.P_index;
-            H_index = saveObject.H_index;  
-            S_index = saveObject.S_index; 
-
-            accessories[A_index].SetActive(true); 
-            tops[T_index].SetActive(true); 
-            pants[P_index].SetActive(true);
-            hair[H_index].SetActive(true);
-            shoes[S_index].SetActive(true);
-            // print(A_index);
-            // print(T_index);
-            // print(P_index);
-            // print(H_index);
-            // print(S_index);
-
-            red = saveObject.red; 
-            green = saveObject.green; 
-            blue = saveObject.blue;
-            // // print(red);
-            // // print(green);
-            // // print (blue);
-
-            tempColor.r = red/255f;
-            tempColor.g = green/255f;
-            tempColor.b = blue/255f; 
-
-            print("temp:");
-            Debug.Log(tempColor);
-            // // GetComponent<MeshRenderer>().material.color = tempColor;
-            material.color = tempColor;
-            print("material:");
-            Debug.Log(material.color);
-            print("fcp:");
-            Debug.Log((float)((Color32)fcp.color).r);
-            Debug.Log((float)((Color32)fcp.color).g);
-            Debug.Log((float)((Color32)fcp.color).b);
-
-            //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
-            fcp.color = material.color; 
-            print("set fcp from material");
-            Debug.Log(fcp.color);
-
-            PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
-            PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
-            PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
-
-            // Debug.Log(red);
-            // Debug.Log((float)((Color32)fcp.color).r);
-            // Debug.Log((float)((Color32)fcp.color).g);
-            // Debug.Log((float)((Color32)fcp.color).b);
-
-        }
-
-        if (File.Exists(saveFile_g) && tag == "guitar")
-        {
-            string saveString = File.ReadAllText(saveFile_g); 
-            Debug.Log(saveString); 
-
-            SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
-
-            //for when user is in scene 2 and wants to load the last saved fit
-          //  closeObjs(accessories);
-            closeObjs(tops);
-            closeObjs(pants);
-            closeObjs(hair);
-            closeObjs(shoes);
-
-            A_index = saveObject.A_index;
-            T_index = saveObject.T_index; 
-            P_index = saveObject.P_index;
-            H_index = saveObject.H_index;  
-            S_index = saveObject.S_index; 
-
-            accessories[A_index].SetActive(true); 
-            tops[T_index].SetActive(true); 
-            pants[P_index].SetActive(true);
-            hair[H_index].SetActive(true);
-            shoes[S_index].SetActive(true);
-            // print(A_index);
-            // print(T_index);
-            // print(P_index);
-            // print(H_index);
-            // print(S_index);
-
-            red = saveObject.red; 
-            green = saveObject.green; 
-            blue = saveObject.blue;
-            // // print(red);
-            // // print(green);
-            // // print (blue);
-
-            tempColor.r = red/255f;
-            tempColor.g = green/255f;
-            tempColor.b = blue/255f; 
-
-            print("temp:");
-            Debug.Log(tempColor);
-            // // GetComponent<MeshRenderer>().material.color = tempColor;
-            material.color = tempColor;
-            print("material:");
-            Debug.Log(material.color);
-            print("fcp:");
-            Debug.Log((float)((Color32)fcp.color).r);
-            Debug.Log((float)((Color32)fcp.color).g);
-            Debug.Log((float)((Color32)fcp.color).b);
-
-            //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
-            fcp.color = material.color; 
-            print("set fcp from material");
-            Debug.Log(fcp.color);
-
-            PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
-            PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
-            PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
-
-            // Debug.Log(red);
-            // Debug.Log((float)((Color32)fcp.color).r);
-            // Debug.Log((float)((Color32)fcp.color).g);
-            // Debug.Log((float)((Color32)fcp.color).b);
-
-        }
-
-        // if (File.Exists(saveFile_p) && tag == "piano")
+        // if(!Directory.Exists(folderPath))
         // {
-        //     string saveString = File.ReadAllText(saveFile_p); 
-        //     Debug.Log(saveString); 
-
-        //     SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
-
-        //     //for when user is in scene 2 and wants to load the last saved fit
-        //     closeObjs(accessories);
-        //     closeObjs(tops);
-        //     closeObjs(pants);
-        //     closeObjs(hair);
-        //     closeObjs(shoes);
-
-        //     A_index = saveObject.A_index;
-        //     T_index = saveObject.T_index; 
-        //     P_index = saveObject.P_index;
-        //     H_index = saveObject.H_index;  
-        //     S_index = saveObject.S_index; 
-
-        //     accessories[A_index].SetActive(true); 
-        //     tops[T_index].SetActive(true); 
-        //     pants[P_index].SetActive(true);
-        //     hair[H_index].SetActive(true);
-        //     shoes[S_index].SetActive(true);
-        //     // print(A_index);
-        //     // print(T_index);
-        //     // print(P_index);
-        //     // print(H_index);
-        //     // print(S_index);
-
-        //     red = saveObject.red; 
-        //     green = saveObject.green; 
-        //     blue = saveObject.blue;
-        //     // // print(red);
-        //     // // print(green);
-        //     // // print (blue);
-
-        //     tempColor.r = red/255f;
-        //     tempColor.g = green/255f;
-        //     tempColor.b = blue/255f; 
-
-        //     print("temp:");
-        //     Debug.Log(tempColor);
-        //     // // GetComponent<MeshRenderer>().material.color = tempColor;
-        //     material.color = tempColor;
-        //     print("material:");
-        //     Debug.Log(material.color);
-        //     print("fcp:");
-        //     Debug.Log((float)((Color32)fcp.color).r);
-        //     Debug.Log((float)((Color32)fcp.color).g);
-        //     Debug.Log((float)((Color32)fcp.color).b);
-
-        //     //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
-        //     fcp.color = material.color; 
-        //     print("set fcp from material");
-        //     Debug.Log(fcp.color);
-
-        //     PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
-        //     PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
-        //     PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
-
-        //     // Debug.Log(red);
-        //     // Debug.Log((float)((Color32)fcp.color).r);
-        //     // Debug.Log((float)((Color32)fcp.color).g);
-        //     // Debug.Log((float)((Color32)fcp.color).b);
-
+        //     Directory.CreateDirectory(folderPath); 
         // }
-        // SaveObject.SetInt(SaveObject.A_index);
-        // Debug.Log(A_index); 
+        // else
+        // {
+            //reference Code Monkey Save and Load video 
+            if (File.Exists(saveFile))
+            {
+                string saveString = File.ReadAllText(saveFile); 
+                Debug.Log(saveString); 
 
-        // reference Destined to Learn Reading JSON file 
-        // public BlobList myBlobList = new BlobList(); 
-        // myBlobList = JsonUtility.FromJson<BlobList>(saveJson.text);
+                SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
 
+                //for when user is in scene 2 and wants to load the last saved fit
+            // closeObjs(accessories);
+                closeObjs(tops);
+                closeObjs(pants);
+                closeObjs(hair);
+                closeObjs(shoes);
+
+                A_index = saveObject.A_index;
+                T_index = saveObject.T_index; 
+                P_index = saveObject.P_index;
+                H_index = saveObject.H_index;  
+                S_index = saveObject.S_index; 
+
+                accessories[A_index].SetActive(true); 
+                tops[T_index].SetActive(true); 
+                pants[P_index].SetActive(true);
+                hair[H_index].SetActive(true);
+                shoes[S_index].SetActive(true);
+                // print(A_index);
+                // print(T_index);
+                // print(P_index);
+                // print(H_index);
+                // print(S_index);
+
+                red = saveObject.red; 
+                green = saveObject.green; 
+                blue = saveObject.blue;
+                // // print(red);
+                // // print(green);
+                // // print (blue);
+
+                tempColor.r = red/255f;
+                tempColor.g = green/255f;
+                tempColor.b = blue/255f; 
+
+                print("temp:");
+                Debug.Log(tempColor);
+                // // GetComponent<MeshRenderer>().material.color = tempColor;
+                material.color = tempColor;
+                print("material:");
+                Debug.Log(material.color);
+                print("fcp:");
+                Debug.Log((float)((Color32)fcp.color).r);
+                Debug.Log((float)((Color32)fcp.color).g);
+                Debug.Log((float)((Color32)fcp.color).b);
+
+                //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
+                fcp.color = material.color; 
+                print("set fcp from material");
+                Debug.Log(fcp.color);
+
+                PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
+                PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
+                PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
+
+                // Debug.Log(red);
+                // Debug.Log((float)((Color32)fcp.color).r);
+                // Debug.Log((float)((Color32)fcp.color).g);
+                // Debug.Log((float)((Color32)fcp.color).b);
+
+            }
+
+            if (File.Exists(saveFile_d) && tag == "drums")
+            {
+                string saveString = File.ReadAllText(saveFile_d); 
+                Debug.Log(saveString); 
+
+                SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
+
+                //for when user is in scene 2 and wants to load the last saved fit
+            //  closeObjs(accessories);
+                closeObjs(tops);
+                closeObjs(pants);
+                closeObjs(hair);
+                closeObjs(shoes);
+
+                A_index = saveObject.A_index;
+                T_index = saveObject.T_index; 
+                P_index = saveObject.P_index;
+                H_index = saveObject.H_index;  
+                S_index = saveObject.S_index; 
+
+                accessories[A_index].SetActive(true); 
+                tops[T_index].SetActive(true); 
+                pants[P_index].SetActive(true);
+                hair[H_index].SetActive(true);
+                shoes[S_index].SetActive(true);
+                // print(A_index);
+                // print(T_index);
+                // print(P_index);
+                // print(H_index);
+                // print(S_index);
+
+                red = saveObject.red; 
+                green = saveObject.green; 
+                blue = saveObject.blue;
+                // // print(red);
+                // // print(green);
+                // // print (blue);
+
+                tempColor.r = red/255f;
+                tempColor.g = green/255f;
+                tempColor.b = blue/255f; 
+
+                print("temp:");
+                Debug.Log(tempColor);
+                // // GetComponent<MeshRenderer>().material.color = tempColor;
+                material.color = tempColor;
+                print("material:");
+                Debug.Log(material.color);
+                print("fcp:");
+                Debug.Log((float)((Color32)fcp.color).r);
+                Debug.Log((float)((Color32)fcp.color).g);
+                Debug.Log((float)((Color32)fcp.color).b);
+
+                //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
+                fcp.color = material.color; 
+                print("set fcp from material");
+                Debug.Log(fcp.color);
+
+                PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
+                PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
+                PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
+
+                // Debug.Log(red);
+                // Debug.Log((float)((Color32)fcp.color).r);
+                // Debug.Log((float)((Color32)fcp.color).g);
+                // Debug.Log((float)((Color32)fcp.color).b);
+
+            }
+
+            if (File.Exists(saveFile_g) && tag == "guitar")
+            {
+                string saveString = File.ReadAllText(saveFile_g); 
+                Debug.Log(saveString); 
+
+                SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
+
+                //for when user is in scene 2 and wants to load the last saved fit
+            //  closeObjs(accessories);
+                closeObjs(tops);
+                closeObjs(pants);
+                closeObjs(hair);
+                closeObjs(shoes);
+
+                A_index = saveObject.A_index;
+                T_index = saveObject.T_index; 
+                P_index = saveObject.P_index;
+                H_index = saveObject.H_index;  
+                S_index = saveObject.S_index; 
+
+                accessories[A_index].SetActive(true); 
+                tops[T_index].SetActive(true); 
+                pants[P_index].SetActive(true);
+                hair[H_index].SetActive(true);
+                shoes[S_index].SetActive(true);
+                // print(A_index);
+                // print(T_index);
+                // print(P_index);
+                // print(H_index);
+                // print(S_index);
+
+                red = saveObject.red; 
+                green = saveObject.green; 
+                blue = saveObject.blue;
+                // // print(red);
+                // // print(green);
+                // // print (blue);
+
+                tempColor.r = red/255f;
+                tempColor.g = green/255f;
+                tempColor.b = blue/255f; 
+
+                print("temp:");
+                Debug.Log(tempColor);
+                // // GetComponent<MeshRenderer>().material.color = tempColor;
+                material.color = tempColor;
+                print("material:");
+                Debug.Log(material.color);
+                print("fcp:");
+                Debug.Log((float)((Color32)fcp.color).r);
+                Debug.Log((float)((Color32)fcp.color).g);
+                Debug.Log((float)((Color32)fcp.color).b);
+
+                //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
+                fcp.color = material.color; 
+                print("set fcp from material");
+                Debug.Log(fcp.color);
+
+                PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
+                PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
+                PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
+
+                // Debug.Log(red);
+                // Debug.Log((float)((Color32)fcp.color).r);
+                // Debug.Log((float)((Color32)fcp.color).g);
+                // Debug.Log((float)((Color32)fcp.color).b);
+
+            }
+
+            // if (File.Exists(saveFile_p) && tag == "piano")
+            // {
+            //     string saveString = File.ReadAllText(saveFile_p); 
+            //     Debug.Log(saveString); 
+
+            //     SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
+
+            //     //for when user is in scene 2 and wants to load the last saved fit
+            //     closeObjs(accessories);
+            //     closeObjs(tops);
+            //     closeObjs(pants);
+            //     closeObjs(hair);
+            //     closeObjs(shoes);
+
+            //     A_index = saveObject.A_index;
+            //     T_index = saveObject.T_index; 
+            //     P_index = saveObject.P_index;
+            //     H_index = saveObject.H_index;  
+            //     S_index = saveObject.S_index; 
+
+            //     accessories[A_index].SetActive(true); 
+            //     tops[T_index].SetActive(true); 
+            //     pants[P_index].SetActive(true);
+            //     hair[H_index].SetActive(true);
+            //     shoes[S_index].SetActive(true);
+            //     // print(A_index);
+            //     // print(T_index);
+            //     // print(P_index);
+            //     // print(H_index);
+            //     // print(S_index);
+
+            //     red = saveObject.red; 
+            //     green = saveObject.green; 
+            //     blue = saveObject.blue;
+            //     // // print(red);
+            //     // // print(green);
+            //     // // print (blue);
+
+            //     tempColor.r = red/255f;
+            //     tempColor.g = green/255f;
+            //     tempColor.b = blue/255f; 
+
+            //     print("temp:");
+            //     Debug.Log(tempColor);
+            //     // // GetComponent<MeshRenderer>().material.color = tempColor;
+            //     material.color = tempColor;
+            //     print("material:");
+            //     Debug.Log(material.color);
+            //     print("fcp:");
+            //     Debug.Log((float)((Color32)fcp.color).r);
+            //     Debug.Log((float)((Color32)fcp.color).g);
+            //     Debug.Log((float)((Color32)fcp.color).b);
+
+            //     //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
+            //     fcp.color = material.color; 
+            //     print("set fcp from material");
+            //     Debug.Log(fcp.color);
+
+            //     PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
+            //     PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
+            //     PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
+
+            //     // Debug.Log(red);
+            //     // Debug.Log((float)((Color32)fcp.color).r);
+            //     // Debug.Log((float)((Color32)fcp.color).g);
+            //     // Debug.Log((float)((Color32)fcp.color).b);
+
+            // }
+            // SaveObject.SetInt(SaveObject.A_index);
+            // Debug.Log(A_index); 
+
+            // reference Destined to Learn Reading JSON file 
+            // public BlobList myBlobList = new BlobList(); 
+            // myBlobList = JsonUtility.FromJson<BlobList>(saveJson.text);
+        // }
     }    
 
     void destroyObj()
