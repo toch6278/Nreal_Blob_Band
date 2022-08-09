@@ -37,7 +37,7 @@ public class Interactions : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Blob touched"); 
+        // Debug.Log("Blob touched"); 
         GameObject hand = Instantiate(particle) as GameObject; 
         hand.transform.position = transform.position;
         if(collision.gameObject.tag=="Tip")
