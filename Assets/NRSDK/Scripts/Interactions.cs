@@ -7,6 +7,7 @@ public class Interactions : MonoBehaviour
     [SerializeField]
     private GameObject particle; 
     private Vector2 mousePos;
+    Vector3 blobSize; 
     // Start is called before the first frame update
     void Start()
     {
@@ -16,6 +17,7 @@ public class Interactions : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //particle explosion on blob 
         if(Input.GetMouseButtonDown(0))
         {
             mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition); 
@@ -25,6 +27,24 @@ public class Interactions : MonoBehaviour
         if(Input.GetMouseButtonUp(0)) 
         {
             particle.SetActive(false);
+        }
+
+        //scale the blob 
+        if(Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            blobSize = transform.localScale; 
+            blobSize.x += 0.01f; 
+            blobSize.y += 0.01f; 
+            blobSize.z += 0.01f;
+            transform.localScale = blobSize; 
+        }
+        if(Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            blobSize = transform.localScale; 
+            blobSize.x -= 0.01f; 
+            blobSize.y -= 0.01f; 
+            blobSize.z -= 0.01f;
+            transform.localScale = blobSize; 
         }
     }
 
@@ -40,16 +60,24 @@ public class Interactions : MonoBehaviour
         // Debug.Log("Blob touched"); 
         GameObject hand = Instantiate(particle) as GameObject; 
         hand.transform.position = transform.position;
-        if(collision.gameObject.tag=="Tip")
+        if(collision.gameObject.tag == "Tip")
         {
             particle.SetActive(true);
+        }
+        if (collision.gameObject.tag == "Fingers")
+        {
+            blobSize = transform.localScale; 
+            blobSize.x += Time.deltaTime; 
+            blobSize.y += Time.deltaTime; 
+            blobSize.z += Time.deltaTime;
+            transform.localScale = blobSize;
         }
 
     }
 
     void OnCollisionExit(Collision collision){
 
-        if(collision.gameObject.tag=="Tip")
+        if(collision.gameObject.tag == "Tip")
         {
             particle.SetActive(false);
 

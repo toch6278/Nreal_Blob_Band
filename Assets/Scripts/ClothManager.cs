@@ -58,9 +58,9 @@ public class ClothManager : MonoBehaviour
         shoes = new List<GameObject>();
         hair = new List<GameObject>();
 
-        print("lists created"); 
+        // print("lists created"); 
         findObj();
-        print("found objects");
+        // print("found objects");
         objOff(); 
         GetPath();
         // folderPath = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ? Application.persistentDataPath : Application.dataPath) + "/BlobDataFolder/";

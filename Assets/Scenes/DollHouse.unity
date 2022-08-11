@@ -17891,7 +17891,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 17beb59853e504d4e87ae2fc7eedfdb4, type: 2}
+  - {fileID: 2100000, guid: c437a4a745c5b614eb3161850e1ced62, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -19611,6 +19611,7 @@ MonoBehaviour:
   red: 0
   green: 0
   blue: 0
+  folderPath: 
   saveFile: 
   saveFile_g: 
   saveFile_d: 
@@ -19685,6 +19686,7 @@ MonoBehaviour:
   red: 0
   green: 0
   blue: 0
+  folderPath: 
   saveFile: 
   saveFile_g: 
   saveFile_d: 
@@ -19797,6 +19799,7 @@ MonoBehaviour:
   red: 0
   green: 0
   blue: 0
+  folderPath: 
   saveFile: 
   saveFile_g: 
   saveFile_d: 
