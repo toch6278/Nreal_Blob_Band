@@ -8,6 +8,23 @@ public class Interactions : MonoBehaviour
     private GameObject particle; 
     private Vector2 mousePos;
     Vector3 blobSize; 
+
+    public AudioClip mySound; 
+
+    public float pitchValue = 1.0f; 
+    private float myVolume = 0.25f; 
+    private AudioSource audioSource; 
+    private float low = 0.75f; 
+    private float high = 1.25f; 
+    public float tempo;
+
+    void Awake()
+    {
+        audioSource = GetComponent<AudioSource>(); 
+        audioSource.clip = mySound; 
+        audioSource.loop = true; 
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,12 +48,15 @@ public class Interactions : MonoBehaviour
 
         //scale the blob 
         if(Input.GetKeyDown(KeyCode.UpArrow))
+        // if(Input.touches[0].position.y >= startPos.y +pixelDist)
         {
             blobSize = transform.localScale; 
             blobSize.x += 0.01f; 
             blobSize.y += 0.01f; 
             blobSize.z += 0.01f;
             transform.localScale = blobSize; 
+            myVolume += 0.05f;
+            audioSource.volume = myVolume;
         }
         if(Input.GetKeyDown(KeyCode.DownArrow))
         {
@@ -45,6 +65,8 @@ public class Interactions : MonoBehaviour
             blobSize.y -= 0.01f; 
             blobSize.z -= 0.01f;
             transform.localScale = blobSize; 
+            myVolume -= 0.05f;
+            audioSource.volume = myVolume;
         }
     }
 
@@ -67,10 +89,12 @@ public class Interactions : MonoBehaviour
         if (collision.gameObject.tag == "Fingers")
         {
             blobSize = transform.localScale; 
-            blobSize.x += Time.deltaTime; 
-            blobSize.y += Time.deltaTime; 
-            blobSize.z += Time.deltaTime;
-            transform.localScale = blobSize;
+            blobSize.x += 0.01f; 
+            blobSize.y += 0.01f; 
+            blobSize.z += 0.01f;
+            transform.localScale = blobSize; 
+            myVolume += 0.05f;
+            audioSource.volume = myVolume;
         }
 
     }

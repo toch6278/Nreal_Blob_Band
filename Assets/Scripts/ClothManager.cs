@@ -35,6 +35,14 @@ public class ClothManager : MonoBehaviour
     public string saveFile, saveFile_g, saveFile_d, saveFile_p;
     public bool isLoadCloth;
     public TextAsset saveJson; 
+
+
+    //debugging log UI
+    public GameObject log;
+    public Text logtext;
+    public int maxLines = 8;
+    private Queue<string> queue = new Queue<string>();
+    private string currentText = "";
     private void Awake()
     { 
         // [SerializeField]
@@ -51,6 +59,9 @@ public class ClothManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
+              GetPath();
+      //  GetPath2();
         //create list so can look at accesspries as children
         accessories = new List<GameObject>();
         tops = new List<GameObject>();
@@ -62,7 +73,8 @@ public class ClothManager : MonoBehaviour
         findObj();
         // print("found objects");
         objOff(); 
-        GetPath();
+  
+
         // folderPath = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ? Application.persistentDataPath : Application.dataPath) + "/BlobDataFolder/";
 
         // saveFile = folderPath + "/save.txt"; 
@@ -72,7 +84,12 @@ public class ClothManager : MonoBehaviour
 
         Debug.Log(Application.dataPath);
         saveFile = Application.dataPath + "/save.txt"; 
-        print("saved to Nreal save.txt");
+        // print("saved to Nreal save.txt");
+
+        // Save();
+        Debug.Log("creating new directory");
+        // GetPath();
+    
         saveFile_g = Application.dataPath + "/saveGuitar.txt"; 
         saveFile_d = Application.dataPath + "/saveDrums.txt"; 
         saveFile_p = Application.dataPath + "/savePiano.txt"; 
@@ -85,7 +102,7 @@ public class ClothManager : MonoBehaviour
 
         if(isLoadCloth)
         {
-            print("load cloth");
+            // print("load cloth");
             //if the blob is currently active in the hiearchy, then load the blob and clothes
             //will then turn off clothes on inactive blob so that clothes can be loaded on active blob 
             //error says can't load clothes on other blob because only able to on first blob in array
@@ -102,6 +119,9 @@ public class ClothManager : MonoBehaviour
         // BlobPlayerPrefs(); 
       
     }
+
+
+
 
     void Update()
     {
@@ -128,8 +148,17 @@ public class ClothManager : MonoBehaviour
 
     public string GetPath()
     {
-        string folderPath = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ? Application.persistentDataPath : Application.dataPath) + "/Assets/";
-        string filePath = folderPath + "myFile.json";
+        logtext.text = "Creating Directory1"; 
+        string folderPath = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ? Application.persistentDataPath : Application.dataPath) +"/myDataFolder/";
+        string filePath = folderPath + "myFile2.json";
+               //     Directory.CreateDirectory(folderPath); 
+            Directory.CreateDirectory(folderPath); 
+
+
+
+        File.Create(filePath).Close();
+            File.WriteAllText(filePath, saveFile);
+
         if (!Directory.Exists(folderPath))
         {
             Directory.CreateDirectory(folderPath); 
@@ -139,7 +168,76 @@ public class ClothManager : MonoBehaviour
             File.Create(filePath).Close();
             File.WriteAllText(filePath, saveFile);
         }
-        return  filePath ;
+        else
+        {
+            string saveString = File.ReadAllText(saveFile); 
+                Debug.Log(saveString); 
+
+                // SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
+
+                //for when user is in scene 2 and wants to load the last saved fit
+            // closeObjs(accessories);
+                // closeObjs(tops);
+                // closeObjs(pants);
+                // closeObjs(hair);
+                // closeObjs(shoes);
+
+                // // A_index = saveObject.A_index;
+                // // T_index = saveObject.T_index; 
+                // // P_index = saveObject.P_index;
+                // // H_index = saveObject.H_index;  
+                // // S_index = saveObject.S_index; 
+
+                // accessories[A_index].SetActive(true); 
+                // tops[T_index].SetActive(true); 
+                // pants[P_index].SetActive(true);
+                // hair[H_index].SetActive(true);
+                // shoes[S_index].SetActive(true);
+                // // print(A_index);
+                // // print(T_index);
+                // // print(P_index);
+                // // print(H_index);
+                // // print(S_index);
+
+                // red = saveObject.red; 
+                // green = saveObject.green; 
+                // blue = saveObject.blue;
+                // // // print(red);
+                // // // print(green);
+                // // // print (blue);
+
+                // tempColor.r = red/255f;
+                // tempColor.g = green/255f;
+                // tempColor.b = blue/255f; 
+
+                // // print("temp:");
+                // // Debug.Log(tempColor);
+                // // // GetComponent<MeshRenderer>().material.color = tempColor;
+                // material.color = tempColor;
+                // // print("material:");
+                // // Debug.Log(material.color);
+                // // print("fcp:");
+                // // Debug.Log((float)((Color32)fcp.color).r);
+                // // Debug.Log((float)((Color32)fcp.color).g);
+                // // Debug.Log((float)((Color32)fcp.color).b);
+
+                // //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
+                // fcp.color = material.color; 
+                // // print("set fcp from material");
+                // // Debug.Log(fcp.color);
+
+                // PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
+                // PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
+                // PlayerPrefs.SetFloat("green", (float)((Color32)fcp.color).g);
+                File.WriteAllText(filePath, saveString);
+
+        
+
+          logtext.text = File.ReadAllText(saveString); 
+        }
+        logtext.text = "End";
+        return filePath;
+        
     }
     Transform [] childs ;
     public void findObj()
@@ -149,8 +247,7 @@ public class ClothManager : MonoBehaviour
        
        for(int i = 0; i < childs.Length; i++)
        {
-            Debug.Log("reading children: ", childs[i]);
-
+            // Debug.Log("reading children: ", childs[i]);
             if(childs[i].tag == "aObj")
             {
                 accessories.Add(childs[i].gameObject);
@@ -465,20 +562,36 @@ public class ClothManager : MonoBehaviour
             green = green,
             blue = blue
         };
-        // if (!File.Exists(saveFile) || !File.Exists(saveFile_d) || !File.Exists(saveFile_g) || !File.Exists(saveFile_p))
-        // {
-            string json =JsonUtility.ToJson(saveBlob);
 
-        //     File.Create(saveFile).Close(); 
-        //     File.Create(saveFile_d).Close(); 
-        //     File.Create(saveFile_g).Close();
-        //     File.Create(saveFile_p).Close();
+        // string folderPath = (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer ? Application.persistentDataPath : Application.dataPath);
+        // string filePath = folderPath + "myFile2.json";
+        //  File.Create(filePath).Close();
+        //     File.WriteAllText(filePath, saveFile);
+
+        // if (!Directory.Exists(folderPath))
+        // {
+        //     Directory.CreateDirectory(folderPath); 
+        // }
+        // if (!File.Exists(filePath)) 
+        // {
+        //     File.Create(filePath).Close();
+        //     File.WriteAllText(filePath, saveFile);
+        // }
+
+        if (!File.Exists(saveFile) || !File.Exists(saveFile_d) || !File.Exists(saveFile_g) || !File.Exists(saveFile_p))
+        {
+            string json = JsonUtility.ToJson(saveBlob);
+
+            // File.Create(saveFile).Close(); 
+            // File.Create(saveFile_d).Close(); 
+            // File.Create(saveFile_g).Close();
+            // File.Create(saveFile_p).Close();
 
             File.WriteAllText(saveFile,json);
             File.WriteAllText(saveFile_g, json);
             File.WriteAllText(saveFile_d, json);  
             File.WriteAllText(saveFile_p, json);
-        // }
+        }
         
         // Debug.Log(A_index); 
         // Debug.Log(Application.dataPath);
@@ -500,12 +613,12 @@ public class ClothManager : MonoBehaviour
             if (File.Exists(saveFile))
             {
                 string saveString = File.ReadAllText(saveFile); 
-                Debug.Log(saveString); 
+                // Debug.Log(saveString); 
 
                 SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
 
                 //for when user is in scene 2 and wants to load the last saved fit
-            // closeObjs(accessories);
+                closeObjs(accessories);
                 closeObjs(tops);
                 closeObjs(pants);
                 closeObjs(hair);
@@ -539,21 +652,21 @@ public class ClothManager : MonoBehaviour
                 tempColor.g = green/255f;
                 tempColor.b = blue/255f; 
 
-                print("temp:");
-                Debug.Log(tempColor);
+                // print("temp:");
+                // Debug.Log(tempColor);
                 // // GetComponent<MeshRenderer>().material.color = tempColor;
                 material.color = tempColor;
-                print("material:");
-                Debug.Log(material.color);
-                print("fcp:");
-                Debug.Log((float)((Color32)fcp.color).r);
-                Debug.Log((float)((Color32)fcp.color).g);
-                Debug.Log((float)((Color32)fcp.color).b);
+                // print("material:");
+                // Debug.Log(material.color);
+                // print("fcp:");
+                // Debug.Log((float)((Color32)fcp.color).r);
+                // Debug.Log((float)((Color32)fcp.color).g);
+                // Debug.Log((float)((Color32)fcp.color).b);
 
                 //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
                 fcp.color = material.color; 
-                print("set fcp from material");
-                Debug.Log(fcp.color);
+                // print("set fcp from material");
+                // Debug.Log(fcp.color);
 
                 PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
                 PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
@@ -608,21 +721,21 @@ public class ClothManager : MonoBehaviour
                 tempColor.g = green/255f;
                 tempColor.b = blue/255f; 
 
-                print("temp:");
-                Debug.Log(tempColor);
+                // print("temp:");
+                // Debug.Log(tempColor);
                 // // GetComponent<MeshRenderer>().material.color = tempColor;
                 material.color = tempColor;
-                print("material:");
-                Debug.Log(material.color);
-                print("fcp:");
-                Debug.Log((float)((Color32)fcp.color).r);
-                Debug.Log((float)((Color32)fcp.color).g);
-                Debug.Log((float)((Color32)fcp.color).b);
+                // print("material:");
+                // Debug.Log(material.color);
+                // print("fcp:");
+                // Debug.Log((float)((Color32)fcp.color).r);
+                // Debug.Log((float)((Color32)fcp.color).g);
+                // Debug.Log((float)((Color32)fcp.color).b);
 
                 //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
                 fcp.color = material.color; 
-                print("set fcp from material");
-                Debug.Log(fcp.color);
+                // print("set fcp from material");
+                // Debug.Log(fcp.color);
 
                 PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
                 PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
@@ -638,7 +751,7 @@ public class ClothManager : MonoBehaviour
             if (File.Exists(saveFile_g) && tag == "guitar")
             {
                 string saveString = File.ReadAllText(saveFile_g); 
-                Debug.Log(saveString); 
+                // Debug.Log(saveString); 
 
                 SaveObject saveObject = JsonUtility.FromJson<SaveObject>(saveString); 
 
@@ -677,21 +790,21 @@ public class ClothManager : MonoBehaviour
                 tempColor.g = green/255f;
                 tempColor.b = blue/255f; 
 
-                print("temp:");
-                Debug.Log(tempColor);
+                // print("temp:");
+                // Debug.Log(tempColor);
                 // // GetComponent<MeshRenderer>().material.color = tempColor;
                 material.color = tempColor;
-                print("material:");
-                Debug.Log(material.color);
-                print("fcp:");
-                Debug.Log((float)((Color32)fcp.color).r);
-                Debug.Log((float)((Color32)fcp.color).g);
-                Debug.Log((float)((Color32)fcp.color).b);
+                // print("material:");
+                // Debug.Log(material.color);
+                // print("fcp:");
+                // Debug.Log((float)((Color32)fcp.color).r);
+                // Debug.Log((float)((Color32)fcp.color).g);
+                // Debug.Log((float)((Color32)fcp.color).b);
 
                 //Debug: when fcp.color is set to the color saved, it outputs rgba(255,255,255,255)
                 fcp.color = material.color; 
-                print("set fcp from material");
-                Debug.Log(fcp.color);
+                // print("set fcp from material");
+                // Debug.Log(fcp.color);
 
                 PlayerPrefs.SetFloat("red", (float)((Color32)fcp.color).r);
                 PlayerPrefs.SetFloat("blue", (float)((Color32)fcp.color).b);
@@ -804,5 +917,47 @@ public class ClothManager : MonoBehaviour
     {
         public SaveObject[] blob; 
     }
+
+    void OnEnable()
+    {
+        Application.logMessageReceivedThreaded += HandleLog;
+    }
+
+    void OnDisable()
+    {
+        Application.logMessageReceivedThreaded -= HandleLog;
+    }
+
+    void HandleLog(string logString, string stackTrace, LogType type)
+    {
+        // Delete oldest message
+        if (queue.Count >= maxLines) queue.Dequeue();
+
+        queue.Enqueue(logString);
+
+        var builder = new StringBuilder();
+        foreach (string st in queue)
+        {
+            builder.Append(st).Append("\n");
+        }
+
+        currentText = builder.ToString();
+    }
+
+    void OnGUI()
+    {
+        GUI.Label(
+           new Rect(
+               5,                   // x, left offset
+               Screen.height - 250, // y, bottom offset
+               300f,                // width
+               150f                 // height
+           ),      
+           currentText,             // the display text
+           GUI.skin.textArea        // use a multi-line text area
+        );
+    }
+
 }
+
 
