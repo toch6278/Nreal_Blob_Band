@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NRKernal;
 
 public class Interactions : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class Interactions : MonoBehaviour
     private float high = 1.25f; 
     public float tempo;
 
+    private Material skin; 
     void Awake()
     {
         audioSource = GetComponent<AudioSource>(); 
@@ -52,7 +54,7 @@ public class Interactions : MonoBehaviour
         {
             blobSize = transform.localScale; 
             blobSize.x += 0.01f; 
-            blobSize.y += 0.01f; 
+            blobSize.y += 0.02f; 
             blobSize.z += 0.01f;
             transform.localScale = blobSize; 
             myVolume += 0.05f;
@@ -62,18 +64,49 @@ public class Interactions : MonoBehaviour
         {
             blobSize = transform.localScale; 
             blobSize.x -= 0.01f; 
-            blobSize.y -= 0.01f; 
+            blobSize.y -= 0.02f; 
             blobSize.z -= 0.01f;
             transform.localScale = blobSize; 
             myVolume -= 0.05f;
             audioSource.volume = myVolume;
         }
+
+
+        //display a ray underneath the blob when dragged over the plane 
+        RaycastHit hitResult;
+            if (Physics.Raycast(new Ray(transform.position, -transform.up), out hitResult, 10))
+            {
+                if (hitResult.collider.gameObject != null && hitResult.collider.gameObject.GetComponent<NRTrackableBehaviour>() != null)
+                {
+                    var behaviour = hitResult.collider.gameObject.GetComponent<NRTrackableBehaviour>();
+                    GetComponent<MeshRenderer>().material.color = skin.color;
+                    if (behaviour.Trackable.GetTrackableType() == TrackableType.TRACKABLE_PLANE)
+                    {
+                        
+                        skin.color = Color.blue; 
+
+                    }
+                }
+            }
+        
+ 
     }
 
     public void OnMouseDown()
     {
         Rigidbody rb = GetComponent<Rigidbody>(); 
         rb.AddForce(Vector3.up, ForceMode.Impulse); 
+
+    }
+
+    public void Grab(){
+
+
+    }
+
+    public void Release(){
+
+
 
     }
 
@@ -96,6 +129,10 @@ public class Interactions : MonoBehaviour
             myVolume += 0.05f;
             audioSource.volume = myVolume;
         }
+
+        
+        //turn on gravity when place blob on the plane detected
+        // if (collision)
 
     }
 

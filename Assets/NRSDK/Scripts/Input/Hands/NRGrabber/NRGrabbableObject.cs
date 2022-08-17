@@ -74,6 +74,7 @@ namespace NRKernal
             {
                 m_OnGrabBegan();
             }
+            BroadcastMessage("Grab");
         }
 
         /// <summary> Grab end. </summary>
@@ -85,6 +86,9 @@ namespace NRKernal
             {
                 m_OnGrabEnded();
             }
+     BroadcastMessage("Release");
+
+            
         }
 
         /// <summary> Move rigidbody. </summary>

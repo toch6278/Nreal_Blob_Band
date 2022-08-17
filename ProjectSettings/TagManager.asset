@@ -12,6 +12,13 @@ TagManager:
   - body
   - Tip
   - Fingers
+  - drummer
+  - pianist
+  - guitarist
+  - guitar
+  - drums
+  - piano
+  - extra
   layers:
   - Default
   - TransparentFX
