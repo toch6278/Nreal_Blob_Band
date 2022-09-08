@@ -19,18 +19,21 @@ public class Interactions : MonoBehaviour
     private float high = 1.25f; 
     public float tempo;
 
-    private Material skin; 
+    private Renderer skin;
+    public Color skin2 = new Color(94,95,77);  
     void Awake()
     {
         audioSource = GetComponent<AudioSource>(); 
         audioSource.clip = mySound; 
         audioSource.loop = true; 
+        // skin.SetColor ("Skin", skin2);
     }
 
     // Start is called before the first frame update
     void Start()
     {
         particle.SetActive(false);
+        skin = GetComponent<Renderer>(); 
     }
 
     // Update is called once per frame
@@ -79,11 +82,11 @@ public class Interactions : MonoBehaviour
                 if (hitResult.collider.gameObject != null && hitResult.collider.gameObject.GetComponent<NRTrackableBehaviour>() != null)
                 {
                     var behaviour = hitResult.collider.gameObject.GetComponent<NRTrackableBehaviour>();
-                    GetComponent<MeshRenderer>().material.color = skin.color;
+            
                     if (behaviour.Trackable.GetTrackableType() == TrackableType.TRACKABLE_PLANE)
                     {
                         
-                        skin.color = Color.blue; 
+                        skin.material.color = new Color(1f,0f,1f,1f); 
 
                     }
                 }
